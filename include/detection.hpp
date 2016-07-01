@@ -23,3 +23,13 @@ class CascadeDetector : public Detector {
  protected:
   cv::CascadeClassifier detector;
 };
+
+class HOGDetector : public Detector {
+ public:
+  virtual bool Init(const std::string& model_file_path);
+  virtual void Detect(const cv::Mat& frame, std::vector<cv::Rect>& objects,
+                      std::vector<double>& scores);
+
+ protected:
+  cv::HOGDescriptor detector;
+};

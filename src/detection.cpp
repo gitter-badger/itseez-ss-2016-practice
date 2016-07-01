@@ -7,17 +7,16 @@
 #include "opencv2/imgproc.hpp"
 #include "opencv2/objdetect.hpp"
 
-using std::string;
-using std::shared_ptr;
-using std::vector;
 using namespace cv;
+using namespace std;
 
 shared_ptr<Detector> Detector::CreateDetector(const string& name) {
   if (name == "cascade") {
     return std::make_shared<CascadeDetector>();
+  } else if (name == "hog") {
+    return std::make_shared<HOGDetector>();
   } else {
-    std::cerr << "Failed to create detector with name '" << name << "'"
-              << std::endl;
+    cerr << "Failed to create detector with name '" << name << "'" << endl;
   }
   return nullptr;
 }
@@ -36,8 +35,31 @@ void CascadeDetector::Detect(const Mat& frame, vector<Rect>& objects,
     detector.detectMultiScale(frame, objects, object_hits, kScaleFactor,
                               kMinHitsNum);
     scores.resize(object_hits.size());
-    std::copy(object_hits.begin(), object_hits.end(), scores.begin());
+    copy(object_hits.begin(), object_hits.end(), scores.begin());
   } else {
-    std::cerr << "Detector has not been initialized before usage." << std::endl;
+    cerr << "Detector has not been initialized before usage." << endl;
+  }
+}
+
+bool HOGDetector::Init(const string& model_file_path) {
+  if (model_file_path == "people_default") {
+    detector.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
+    return true;
+  }
+  if (model_file_path == "people_daimler") {
+    detector.setSVMDetector(HOGDescriptor::getDaimlerPeopleDetector());
+    return true;
+  }
+  return detector.load(model_file_path);
+}
+
+void HOGDetector::Detect(const Mat& frame, vector<Rect>& objects,
+                         vector<double>& scores) {
+  CV_Assert(!frame.empty());
+  if (!detector.svmDetector.empty()) {
+    const double kHitThreshold = 0.0;
+    detector.detectMultiScale(frame, objects, scores, kHitThreshold);
+  } else {
+    cerr << "Detector has not been initialized before usage." << endl;
   }
 }
