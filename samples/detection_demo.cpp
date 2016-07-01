@@ -12,7 +12,7 @@
 using namespace std;
 using namespace cv;
 
-const char* kAbout = "This is a detection sample application.";
+const char* kAbout = "This is a detection sample.";
 
 const char* kOptions =
     "{ v video        | <none> | video to process                         }"
@@ -58,29 +58,28 @@ int main(int argc, const char** argv) {
   const int kWaitKeyDelay = 100;
   const int kEscapeKey = 27;
   const Scalar kColorCyan = CV_RGB(0, 255, 255);
-
   namedWindow(kWindowName);
 
   CascadeDetector detector;
   string detector_model_file_path = parser.get<string>("model");
   if (!detector.Init(detector_model_file_path)) {
-    std::cerr << "Failed to load detector from file '"
-              << detector_model_file_path << "'";
+    cerr << "Failed to load detector from file '" << detector_model_file_path
+         << "'" << endl;
     return 0;
   }
 
   Mat frame;
   video >> frame;
-  Rect gt_object;
-  gt_reader.Next(gt_object);
+  vector<Rect> gt_objects;
+  gt_reader.Next(gt_objects);
 
   while (!frame.empty()) {
     vector<Rect> objects;
     vector<double> scores;
     detector.Detect(frame, objects, scores);
+    benchmark.UpdateMetrics(objects, gt_objects);
     for (const auto& object : objects) {
       rectangle(frame, object, kColorCyan, 3);
-      benchmark.UpdateMetrics(object, gt_object);
     }
     imshow(kWindowName, frame);
     int key = waitKey(kWaitKeyDelay) & 0x00FF;
@@ -88,13 +87,12 @@ int main(int argc, const char** argv) {
       break;
     }
     video >> frame;
-    gt_reader.Next(gt_object);
+    gt_reader.Next(gt_objects);
   }
 
   if (gt_reader.IsOpen()) {
-    pair<float, float> metrics = benchmark.GetMetrics();
-    cout << "Precision:\t" << metrics.first << endl;
-    cout << "Recall   :\t" << metrics.second << endl;
+    cout << "Detection rate   :\t" << benchmark.GetDetectionRate() << endl;
+    cout << "False alarms rate:\t" << benchmark.GetFalseAlarmRate() << endl;
   }
 
   return 0;
