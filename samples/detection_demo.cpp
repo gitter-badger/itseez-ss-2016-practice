@@ -7,6 +7,7 @@
 #include "opencv2/objdetect.hpp"
 
 #include "detection.hpp"
+#include "metrics.hpp"
 
 using namespace std;
 using namespace cv;
@@ -14,10 +15,11 @@ using namespace cv;
 const char* kAbout = "This is a detection sample application.";
 
 const char* kOptions =
-    "{ v video        | <none> | video to process         }"
-    "{ c camera       | <none> | camera to get video from }"
-    "{ m model        | <none> |                          }"
-    "{ h ? help usage |        | print help message       }";
+    "{ v video        | <none> | video to process                         }"
+    "{ c camera       | <none> | camera to get video from                 }"
+    "{ gt             |        | file with ground truth objects locations }"
+    "{ m model        | <none> |                                          }"
+    "{ h ? help usage |        | print help message                       }";
 
 int main(int argc, const char** argv) {
   // Parse command line arguments.
@@ -30,12 +32,10 @@ int main(int argc, const char** argv) {
     return 0;
   }
 
-  Mat frame;
-
   // Load input video.
   VideoCapture video;
   if (parser.has("video")) {
-    string video_path = parser.get<String>("video");
+    string video_path = parser.get<string>("video");
     video.open(video_path);
     if (!video.isOpened()) {
       cout << "Failed to open video file '" << video_path << "'" << endl;
@@ -50,6 +50,9 @@ int main(int argc, const char** argv) {
       return 0;
     }
   }
+
+  GroundTruthReader gt_reader(parser.get<string>("gt"));
+  PrecisionRecallEvaluator benchmark;
 
   const string kWindowName = "video";
   const int kWaitKeyDelay = 100;
@@ -66,14 +69,18 @@ int main(int argc, const char** argv) {
     return 0;
   }
 
+  Mat frame;
   video >> frame;
+  Rect gt_object;
+  gt_reader.Next(gt_object);
 
   while (!frame.empty()) {
     vector<Rect> objects;
     vector<double> scores;
     detector.Detect(frame, objects, scores);
     for (const auto& object : objects) {
-      rectangle(frame, object, kColorCyan, 1);
+      rectangle(frame, object, kColorCyan, 3);
+      benchmark.UpdateMetrics(object, gt_object);
     }
     imshow(kWindowName, frame);
     int key = waitKey(kWaitKeyDelay) & 0x00FF;
@@ -81,6 +88,13 @@ int main(int argc, const char** argv) {
       break;
     }
     video >> frame;
+    gt_reader.Next(gt_object);
+  }
+
+  if (gt_reader.IsOpen()) {
+    pair<float, float> metrics = benchmark.GetMetrics();
+    cout << "Precision:\t" << metrics.first << endl;
+    cout << "Recall   :\t" << metrics.second << endl;
   }
 
   return 0;
