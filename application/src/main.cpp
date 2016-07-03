@@ -52,21 +52,21 @@ int main(int argc, const char** argv)
     while(true)
     {
         // Get next frame
-        Mat image = frameSource->getFrame();
-        if (image.empty())
+        Mat frame = frameSource->getFrame();
+        if (frame.empty())
         {
-            cout << "Image is empty. Aborting!" << endl;
-            exit(0);
+            cout << "Frame is empty. Aborting!" << endl;
+            break;
         }
 
         // Process frame
-        Mat output = processor->process(image);
+        Mat output = processor->process(frame);
 
         // Show result, exit on any key pressed
         imshow("Output", output);
         const int waiting_time = parser.has("image") ? 1000 : 30;
         if (waitKey(waiting_time) != -1) // Break on any key
-            return 0;
+            break;
     }
 
     return 0;
