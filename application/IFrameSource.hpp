@@ -8,5 +8,5 @@ class IFrameSource
      virtual cv::Mat getFrame() = 0;
 };
 
-IFrameSource* createImageFrameSource(std::string path_to_image);
-IFrameSource* createCameraFrameSource();
+std::shared_ptr<IFrameSource> createImageFrameSource(std::string path_to_image);
+std::shared_ptr<IFrameSource> createCameraFrameSource();

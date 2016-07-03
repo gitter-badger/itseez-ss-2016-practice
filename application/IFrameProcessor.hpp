@@ -5,5 +5,5 @@ class IFrameProcessor {
     virtual cv::Mat process(cv::Mat input) =0;
 };
 
-IFrameProcessor* createThresholdProcessor_OpenCV();
-IFrameProcessor* createThresholdProcessor_Manual();
+std::shared_ptr<IFrameProcessor> createThresholdProcessor_OpenCV();
+std::shared_ptr<IFrameProcessor> createThresholdProcessor_Manual();

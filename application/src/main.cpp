@@ -34,7 +34,7 @@ int main(int argc, const char** argv)
     }
 
     // Create frame source
-    IFrameSource* frameSource;
+    std::shared_ptr<IFrameSource> frameSource;
     if (parser.has("image"))
         frameSource = createImageFrameSource(parser.get<string>("image"));
     else if (parser.has("camera"))
@@ -46,7 +46,7 @@ int main(int argc, const char** argv)
     }
 
     // Create frame processor
-    IFrameProcessor* processor = createThresholdProcessor_OpenCV();
+    std::shared_ptr<IFrameProcessor> processor = createThresholdProcessor_OpenCV();
 
     // Main processing loop
     while(true)

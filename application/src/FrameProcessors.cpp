@@ -30,5 +30,10 @@ class ThresholdProcessor_Manual: public IFrameProcessor {
 };
 
 // Factory methods for each processor
-IFrameProcessor* createThresholdProcessor_OpenCV() { return new ThresholdProcessor_OpenCV(); }
-IFrameProcessor* createThresholdProcessor_Manual() { return new ThresholdProcessor_Manual(); }
+std::shared_ptr<IFrameProcessor> createThresholdProcessor_OpenCV() {
+    return std::shared_ptr<IFrameProcessor>(new ThresholdProcessor_OpenCV());
+}
+
+std::shared_ptr<IFrameProcessor> createThresholdProcessor_Manual() {
+    return std::shared_ptr<IFrameProcessor>(new ThresholdProcessor_Manual());
+}

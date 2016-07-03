@@ -51,5 +51,10 @@ class CameraFrameSource: public IFrameSource
      cv::VideoCapture camera_;
 };
 
-IFrameSource* createImageFrameSource(std::string path) { return new ImageFrameSource(path); }
-IFrameSource* createCameraFrameSource() { return new CameraFrameSource(); }
+std::shared_ptr<IFrameSource> createImageFrameSource(std::string path) {
+    return std::shared_ptr<IFrameSource>(new ImageFrameSource(path));
+}
+
+std::shared_ptr<IFrameSource> createCameraFrameSource() {
+    return std::shared_ptr<IFrameSource>(new CameraFrameSource());
+}
