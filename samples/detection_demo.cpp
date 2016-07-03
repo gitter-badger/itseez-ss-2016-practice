@@ -52,9 +52,10 @@ int main(int argc, const char** argv) {
   }
 
   const string kWindowName = "video";
-  const int kWaitKeyDelay = 100;
+  const int kWaitKeyDelay = 20;
   const int kEscapeKey = 27;
   const Scalar kColorCyan = CV_RGB(0, 255, 255);
+  const int kLineThickness = 3;
 
   namedWindow(kWindowName);
 
@@ -73,7 +74,7 @@ int main(int argc, const char** argv) {
     vector<double> scores;
     detector.Detect(frame, objects, scores);
     for (const auto& object : objects) {
-      rectangle(frame, object, kColorCyan, 1);
+      rectangle(frame, object, kColorCyan, kLineThickness);
     }
     imshow(kWindowName, frame);
     int key = waitKey(kWaitKeyDelay) & 0x00FF;
