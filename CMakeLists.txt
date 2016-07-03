@@ -5,7 +5,7 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
 
 set(PROJECT_NAME summer_school_2016)
 project(${PROJECT_NAME})
-set(LIBRARY    "${PROJECT_NAME}_lib")
+set(LIBRARY    "lib_${PROJECT_NAME}")
 set(TESTS      "test_${PROJECT_NAME}")
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
@@ -34,7 +34,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEAS
 find_package(OpenCV 3.1 REQUIRED)
 set(LIBRARY_DEPS ${OpenCV_LIBS})
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/algorithms" "${CMAKE_CURRENT_SOURCE_DIR}/application" ${OpenCV_INCLUDE_DIRS})
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/algorithms"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/application"
+                     ${OpenCV_INCLUDE_DIRS})
 
 # Add modules.
 add_subdirectory(3rdparty/gtest)

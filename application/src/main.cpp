@@ -3,8 +3,10 @@
 
 #include "opencv2/core.hpp"
 #include "opencv2/imgproc.hpp"
+#include "opencv2/highgui.hpp"
 
 #include "IFrameSource.hpp"
+#include "IFrameProcessor.hpp"
 
 using namespace std;
 using namespace cv;
@@ -30,7 +32,8 @@ int main(int argc, const char** argv)
         return 0;
     }
 
-    IFrameSource* frameSource = new ImageFrameSource("/Users/kirill-kornyakov/Temp/pro-git.jpg");
+    IFrameSource* frameSource = createImageFrameSource("/Users/kirill-kornyakov/Temp/pro-git.jpg");
+    IFrameProcessor* processor = createToGrayscaleProcessor();
 
     while(true)
     {
@@ -41,8 +44,9 @@ int main(int argc, const char** argv)
             exit(0);
         }
 
-        threshold(image, image, 128, 255, THRESH_BINARY);
-        imshow("Result", image);
+        Mat output = processor->process(image);
+
+        imshow("Output", output);
         waitKey(0);
     }
 
