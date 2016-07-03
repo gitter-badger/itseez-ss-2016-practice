@@ -34,13 +34,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEAS
 find_package(OpenCV 3.1 REQUIRED)
 set(LIBRARY_DEPS ${OpenCV_LIBS})
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include" ${OpenCV_INCLUDE_DIRS})
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/algorithms" "${CMAKE_CURRENT_SOURCE_DIR}/application" ${OpenCV_INCLUDE_DIRS})
 
 # Add modules.
 add_subdirectory(3rdparty/gtest)
-add_subdirectory(src)
+add_subdirectory(algorithms)
 add_subdirectory(test)
-add_subdirectory(samples)
+add_subdirectory(application)
 
 # Print summary.
 message( STATUS "")

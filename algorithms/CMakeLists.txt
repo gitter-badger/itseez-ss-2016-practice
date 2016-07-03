@@ -1,8 +1,8 @@
 set(target ${LIBRARY})
 
-file(GLOB incl "../include/*.h*")
+file(GLOB incl "../*.h*")
 file(GLOB hdrs "*.h*")
-file(GLOB srcs "*.cpp")
+file(GLOB srcs "src/*.cpp")
 
 add_library(${target} STATIC ${srcs} ${hdrs} ${incl})
 if (UNIX)
