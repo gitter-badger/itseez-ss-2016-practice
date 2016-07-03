@@ -1,6 +1,9 @@
 #include "metrics.hpp"
 
+#include <algorithm>
+#include <iostream>
 #include <utility>
+#include <vector>
 
 #include "opencv2/opencv.hpp"
 
@@ -33,10 +36,19 @@ void PrecisionRecallEvaluator::UpdateMetrics(const vector<Rect>& guess,
   vector<bool> objects_detected(ground_truth.size(), false);
   vector<bool> correct_detections(guess.size(), false);
 
-  for (size_t i = 0; i < ground_truth.size(); ++i) {
-    const Rect& gt = ground_truth.at(i);
-    for (size_t j = 0; j < guess.size(); ++j) {
-      if (IntersectionOverUnion(guess.at(j), gt) >= threshold_) {
+  for (size_t j = 0; j < guess.size(); ++j) {
+    // Do not count any already matched detector alarm twice.
+    if (correct_detections.at(j)) {
+      continue;
+    }
+    const Rect& alarm = guess.at(j);
+    for (size_t i = 0; i < ground_truth.size(); ++i) {
+      // Do not allow several matches for one detector.
+      if (objects_detected.at(i)) {
+        continue;
+      }
+      const Rect& gt = ground_truth.at(i);
+      if (IntersectionOverUnion(alarm, gt) >= threshold_) {
         objects_detected[i] = true;
         correct_detections[j] = true;
         break;
@@ -50,14 +62,36 @@ void PrecisionRecallEvaluator::UpdateMetrics(const vector<Rect>& guess,
       std::count(correct_detections.begin(), correct_detections.end(), false);
 }
 
+void PrecisionRecallEvaluator::UpdateMetrics(const vector<Rect>& guess,
+                                             const vector<double>& scores,
+                                             const vector<Rect>& ground_truth) {
+  if (guess.size() != scores.size()) {
+    cerr << "Check failed 'guess.size() == scores.size()' (" << guess.size()
+         << " vs " << scores.size() << ")." << endl;
+    return;
+  }
+  // Sort detector alarm by scores.
+  vector<size_t> idx(guess.size());
+  iota(idx.begin(), idx.end(), 0);
+  std::sort(idx.begin(), idx.end(),
+            [&](size_t i, size_t j) { return scores.at(i) > scores.at(j); });
+  vector<Rect> guess_sorted(guess.size());
+  std::transform(idx.begin(), idx.end(), guess_sorted.begin(),
+                 [&](size_t i) { return guess.at(i); });
+  // Evaluate metrics.
+  UpdateMetrics(guess_sorted, ground_truth);
+}
+
 float PrecisionRecallEvaluator::GetDetectionRate() const {
-  return num_objects_ == 0 ? 0.0f : num_objects_found_ /
-                                        static_cast<float>(num_objects_);
+  return num_objects_ == 0
+             ? 0.0f
+             : num_objects_found_ / static_cast<float>(num_objects_);
 }
 
 float PrecisionRecallEvaluator::GetFalseAlarmRate() const {
-  return num_responses_ == 0 ? 0.0f : num_false_alarms_ /
-                                          static_cast<float>(num_responses_);
+  return num_responses_ == 0
+             ? 0.0f
+             : num_false_alarms_ / static_cast<float>(num_responses_);
 }
 GroundTruthReader::GroundTruthReader(const string& filename) {
   FileStorage file_storage;
@@ -97,6 +131,4 @@ bool GroundTruthReader::Get(vector<Rect>& rects) {
   }
 }
 
-bool GroundTruthReader::IsOpen() const {
-  return is_opened_;
-}
+bool GroundTruthReader::IsOpen() const { return is_opened_; }

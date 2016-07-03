@@ -18,10 +18,13 @@ class PrecisionRecallEvaluator {
 
   void UpdateMetrics(const std::vector<cv::Rect>& guess,
                      const std::vector<cv::Rect>& ground_truth);
+  void UpdateMetrics(const std::vector<cv::Rect>& guess,
+                     const std::vector<double>& scores,
+                     const std::vector<cv::Rect>& ground_truth);
+
   float GetDetectionRate() const;
   float GetFalseAlarmRate() const;
-  static float IntersectionOverUnion(const cv::Rect& r,
-                                     const cv::Rect& p);
+  static float IntersectionOverUnion(const cv::Rect& r, const cv::Rect& p);
 };
 
 class GroundTruthReader {
