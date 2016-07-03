@@ -9,3 +9,4 @@ class IFrameSource
 };
 
 IFrameSource* createImageFrameSource(std::string path_to_image);
+IFrameSource* createCameraFrameSource();

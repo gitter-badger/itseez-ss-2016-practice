@@ -1,5 +1,6 @@
 #include "IFrameSource.hpp"
 
+#include <iostream>
 #include <opencv2/highgui/highgui.hpp>
 
 class ImageFrameSource: public IFrameSource
@@ -27,7 +28,28 @@ class ImageFrameSource: public IFrameSource
      cv::Mat image_;
 };
 
-IFrameSource* createImageFrameSource(std::string path_to_image)
+class CameraFrameSource: public IFrameSource
 {
-    return new ImageFrameSource(path_to_image);
-}
+ public:
+    CameraFrameSource() {
+        camera_.open(0);
+
+        if (!camera_.isOpened())
+        {
+            std::cout << "Capture from camera 0 didn't work. Aborting." << std::endl;
+            exit(0);
+        }
+    }
+
+    cv::Mat getFrame() {
+        cv::Mat frame;
+        camera_ >> frame;
+        return frame;
+    }
+
+ private:
+     cv::VideoCapture camera_;
+};
+
+IFrameSource* createImageFrameSource(std::string path) { return new ImageFrameSource(path); }
+IFrameSource* createCameraFrameSource() { return new CameraFrameSource(); }

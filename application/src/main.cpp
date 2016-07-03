@@ -16,7 +16,8 @@ const char* kAbout =
     "own doing-something-cool applications.";
 
 const char* kOptions =
-    "{ v video        |        | video to process         }"
+    "{ i image        |        | image to process         }"
+    "{ c camera       |        | process camera images    }"
     "{ h ? help usage |        | print help message       }";
 
 int main(int argc, const char** argv)
@@ -32,24 +33,40 @@ int main(int argc, const char** argv)
         return 0;
     }
 
-    // Create frame source and processor
-    IFrameSource* frameSource = createImageFrameSource("/Users/kirill-kornyakov/Temp/pro-git.jpg");
-    IFrameProcessor* processor = createThresholdProcessor_Manual();
+    // Create frame source
+    IFrameSource* frameSource;
+    if (parser.has("image"))
+        frameSource = createImageFrameSource(parser.get<string>("image"));
+    else if (parser.has("camera"))
+        frameSource = createCameraFrameSource();
+    else
+    {
+        parser.printMessage();
+        return 0;
+    }
+
+    // Create frame processor
+    IFrameProcessor* processor = createThresholdProcessor_OpenCV();
 
     // Main processing loop
     while(true)
     {
+        // Get next frame
         Mat image = frameSource->getFrame();
         if (image.empty())
         {
-            cout << "Image is empty. Aborting." << endl;
+            cout << "Image is empty. Aborting!" << endl;
             exit(0);
         }
 
+        // Process frame
         Mat output = processor->process(image);
 
+        // Show result, exit on any key pressed
         imshow("Output", output);
-        waitKey(0);
+        const int waiting_time = parser.has("image") ? 1000 : 30;
+        if (waitKey(waiting_time) != -1) // Break on any key
+            return 0;
     }
 
     return 0;
