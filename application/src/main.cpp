@@ -32,9 +32,11 @@ int main(int argc, const char** argv)
         return 0;
     }
 
+    // Create frame source and processor
     IFrameSource* frameSource = createImageFrameSource("/Users/kirill-kornyakov/Temp/pro-git.jpg");
-    IFrameProcessor* processor = createToGrayscaleProcessor();
+    IFrameProcessor* processor = createThresholdProcessor_Manual();
 
+    // Main processing loop
     while(true)
     {
         Mat image = frameSource->getFrame();

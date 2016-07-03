@@ -6,3 +6,5 @@ class IFrameProcessor {
 };
 
 IFrameProcessor* createToGrayscaleProcessor();
+IFrameProcessor* createThresholdProcessor_OpenCV();
+IFrameProcessor* createThresholdProcessor_Manual();
