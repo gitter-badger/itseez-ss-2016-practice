@@ -1,12 +1,11 @@
 set(target ${LIBRARY})
 
-file(GLOB incl "../*.h*")
-file(GLOB hdrs "*.h*")
+file(GLOB hdrs "include/*.h*")
 file(GLOB srcs "src/*.cpp")
 
 add_library(${target} STATIC ${srcs} ${hdrs} ${incl})
 if (UNIX)
-  # target_link_libraries(${target} ${CMAKE_THREAD_LIBS_INIT})
+  target_link_libraries(${target} ${CMAKE_THREAD_LIBS_INIT})
 endif (UNIX)
 target_link_libraries(${target} ${LIBRARY_DEPS})
 

@@ -1,13 +1,34 @@
-#include "tracking.hpp"
+#include "include/frame_processor.hpp"
 
 #include <iostream>
+#include <string>
+#include <vector>
 
-using std::string;
-using std::shared_ptr;
+#include "opencv2/imgproc.hpp"
+#include "opencv2/objdetect.hpp"
+
 using namespace cv;
+using namespace std;
 
-shared_ptr<Tracker> Tracker::CreateTracker(const string &name) {
-  std::cerr << "Failed to create tracker with name '" << name << "'"
-            << std::endl;
-  return nullptr;
-}
+class MedianFlowTracker : public IFrameProcessor {
+ public:
+  MedianFlowTracker() {
+    // TODO: implement.
+  }
+
+  Mat Process(const Mat& frame, const Rect& previous_location) {
+    if (frame.empty()) {
+      cerr << "Error. Empty image." << endl;
+      return Mat();
+    }
+
+    // TODO: implement tracking logic here.
+    Rect current_location = previous_location;
+
+    const Scalar kColorRed = CV_RGB(255, 0, 0);
+    const int kLineThickness = 3;
+    Mat image = frame.clone();
+    rectangle(image, current_location, kColorRed, kLineThickness);
+    return image;
+  }
+};
