@@ -49,3 +49,7 @@ class CascadeDetector : public IFrameProcessor {
  protected:
   CascadeClassifier detector_;
 };
+
+shared_ptr<IFrameProcessor> createCascadeDetector(const string& path) {
+  return make_shared<CascadeDetector>(path);
+}
